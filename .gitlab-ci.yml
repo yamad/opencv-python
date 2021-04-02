@@ -1,0 +1,50 @@
+
+stages:
+  - static analysis
+  - build and test
+  - publish
+
+default:
+  tags:
+    - docker
+
+variables:
+  PIP_INDEX_URL: "$ARTIFACT_REPO_BASE/repository/pypi-cl/simple"
+  PIP_EXTRA_INDEX_URL: "$ARTIFACT_REPO_BASE/repository/pypi-proxy/simple"
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+cache:
+  paths:
+    - .cache/pip
+
+build: &build-template
+  stage: build and test
+  image: quay.io/skvark/manylinux2014_$PLAT
+  before_script:
+    - source multibuild/common_utils.sh
+  script:
+    - cd opencv; git checkout 4.2.0
+    - cd opencv_python; git checkout 4.2.0
+    - build_wheel . $PLAT
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+  parallel:
+    matrix:
+        PLAT: ["x86_64"]
+        MB_PYTHON_VERSION: ["3.9"]
+        ENABLE_CONTRIB: [0]
+        ENABLE_HEADLESS: [0]
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - .tox/artifacts/*.whl
+
+publish to nexus:
+  stage: publish
+  rules:
+    - if: '$CI_COMMIT_TAG =~/^v[0-9]+/'
+  image:
+    name: "repo.covisus.com:9994/covisus-nexus-publish:0.2"
+    entrypoint: [""]
+  script:
+    - nexus-publish "${CI_PROJECT_NAME}" "${ARTIFACT_REPO_BASE_URL}" "${ARTIFACT_REPO_USERNAME}" "${ARTIFACT_REPO_PASSWORD}" .tox/artifacts/*.whl
