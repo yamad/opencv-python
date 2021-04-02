@@ -22,22 +22,30 @@ build: &build-template
   image: quay.io/skvark/manylinux2014_$PLAT
   before_script:
     - source multibuild/common_utils.sh
+    - source multibuild/manylinux_utils.sh
+    - source multibuild/configure_build.sh
+    - source multibuild/library_builders.sh
+    - export PYTHON_EXE=$(cpython_path $MB_PYTHON_VERSION)/bin/python
+    - export PATH="$(dirname $PYTHON_EXE):$PATH"
   script:
-    - cd opencv; git checkout 4.2.0
-    - cd opencv_python; git checkout 4.2.0
-    - build_wheel . $PLAT
+    - mkdir wheelhouse
+    - (cd opencv; git checkout $OPENCV_VERSION)
+    - (cd opencv_contrib; git checkout $OPENCV_VERSION)
+    - pip wheel -vv -w wheelhouse .
+    - auditwheel repair wheelhouse/opencv*.whl
   variables:
     GIT_SUBMODULE_STRATEGY: recursive
   parallel:
     matrix:
       - PLAT: ["x86_64"]
         MB_PYTHON_VERSION: ["3.9"]
+        OPENCV_VERSION: ["4.2.0"]
         ENABLE_CONTRIB: [0]
         ENABLE_HEADLESS: [0]
   artifacts:
     expire_in: 1 day
     paths:
-      - .tox/artifacts/*.whl
+      - wheelhouse/opencv*.whl
 
 publish to nexus:
   stage: publish
@@ -47,4 +55,4 @@ publish to nexus:
     name: "repo.covisus.com:9994/covisus-nexus-publish:0.2"
     entrypoint: [""]
   script:
-    - nexus-publish "${CI_PROJECT_NAME}" "${ARTIFACT_REPO_BASE_URL}" "${ARTIFACT_REPO_USERNAME}" "${ARTIFACT_REPO_PASSWORD}" .tox/artifacts/*.whl
+    - nexus-publish "${CI_PROJECT_NAME}" "${ARTIFACT_REPO_BASE_URL}" "${ARTIFACT_REPO_USERNAME}" "${ARTIFACT_REPO_PASSWORD}" wheelhouse/opencv*.whl
