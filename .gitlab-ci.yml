@@ -32,7 +32,7 @@ build: &build-template
     - mkdir wheelhouse
     - (cd opencv; git checkout $OPENCV_VERSION)
     - (cd opencv_contrib; git checkout $OPENCV_VERSION)
-    - pip wheel -vv -w wheelhouse .
+    - pip wheel -v -w wheelhouse .
     - auditwheel repair wheelhouse/opencv*.whl
   variables:
     GIT_SUBMODULE_STRATEGY: recursive
