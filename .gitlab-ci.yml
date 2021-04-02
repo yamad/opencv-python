@@ -19,7 +19,8 @@ cache:
 
 build: &build-template
   stage: build and test
-  image: quay.io/skvark/manylinux2014_$PLAT
+  # mirror quay.io/skvark/manylinux images due to firewall
+  image: repo.covisus.com:9994/skvark/manylinux2014_$PLAT
   before_script:
     - source multibuild/common_utils.sh
     - source multibuild/manylinux_utils.sh
