@@ -38,12 +38,17 @@ jobs:
         export PATH="$(dirname $PYTHON_EXE):$PATH"
 
         mkdir wheelhouse
+        python -m pip install --upgrade pip
         (cd opencv; git checkout $OPENCV_VERSION)
         (cd opencv_contrib; git checkout $OPENCV_VERSION)
-        pip wheel -v -w wheelhouse .
+        pip wheel -w wheelhouse .
         auditwheel repair wheelhouse/opencv*.whl
+    -
+      name: list directory
+      run: ls -R
     -
       name: store artifacts
       uses: actions/download-artifact@v2
       with:
         path: wheelhouse/opencv*.whl
+        path: opencv-python/wheelhouse/opencv*.whl
