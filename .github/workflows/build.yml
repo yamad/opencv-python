@@ -37,8 +37,12 @@ jobs:
         export PATH="$(dirname $PYTHON_EXE):$PATH"
 
         mkdir wheelhouse
-        (cd opencv; git tag; git checkout $OPENCV_VERSION)
-        (cd opencv_contrib; git checkout $OPENCV_VERSION)
+        cd opencv
+        git tag
+        git checkout $OPENCV_VERSION
+        cd ../opencv_contrib
+        git checkout $OPENCV_VERSION
+        cd ..
         pip wheel -v -w wheelhouse .
         auditwheel repair wheelhouse/opencv*.whl
     -
