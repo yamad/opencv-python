@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         opencv_version: ["4.2.0"]
-        platform: ["x86_64", "aarch64", "i686"]
+        platform: ["x86_64"]
         python_version: ["3.9"]
         enable_contrib: [0, 1]
         enable_headless: [0, 1]
