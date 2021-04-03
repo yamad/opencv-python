@@ -18,8 +18,6 @@ jobs:
       PYTHON_VERSION: ${{ matrix.python_version }}
       ENABLE_CONTRIB: ${{ matrix.enable_contrib }}
       ENABLE_HEADLESS: ${{ matrix.enable_headless }}
-    with:
-      opencv_version: 4.2.0
     steps:
     - name: build
       run: |
@@ -31,10 +29,13 @@ jobs:
         export PATH="$(dirname $PYTHON_EXE):$PATH"
 
         mkdir wheelhouse
-        (cd opencv; git checkout $OPENCV_VERSION)
-        (cd opencv_contrib; git checkout $OPENCV_VERSION)
+        (cd opencv; git checkout $INPUT_OPENCV_VERSION)
+        (cd opencv_contrib; git checkout $INPUT_OPENCV_VERSION)
         pip wheel -v -w wheelhouse .
         auditwheel repair wheelhouse/opencv*.whl
+      with:
+        opencv_version: 4.2.0
+
     - name: store artifacts
       uses: actions/download-artifacts@v2
       with:
