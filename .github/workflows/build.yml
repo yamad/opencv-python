@@ -11,8 +11,8 @@ jobs:
         opencv_version: [4.2.0]
         platform: ["x86_64"]
         python_version: ["3.9"]
-        enable_contrib: [0, 1]
-        enable_headless: [0, 1]
+        enable_contrib: [0]
+        enable_headless: [0]
     env:
       PLAT: ${{ matrix.platform }}
       OPENCV_VERSION: ${{ matrix.opencv_version }}
@@ -37,8 +37,10 @@ jobs:
         export PATH="$(dirname $PYTHON_EXE):$PATH"
 
         mkdir wheelhouse
+        pwd
+        ls
         cd opencv
-        git tag
+        pwd
         git checkout $OPENCV_VERSION
         cd ../opencv_contrib
         git checkout $OPENCV_VERSION
