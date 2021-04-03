@@ -8,11 +8,11 @@ jobs:
     container: quay.io/skvark/manylinux2014_${{ matrix.platform }}
     strategy:
       matrix:
-        opencv_version: [4.2.0]
-        platform: ["x86_64"]
-        python_version: ["3.9"]
-        enable_contrib: [0]
-        enable_headless: [0]
+        opencv_version: [4.2.0, 4.3.0]
+        platform: [x86_64]
+        python_version: [3.8, 3.9]
+        enable_contrib: [0, 1]
+        enable_headless: [0, 1]
     env:
       PLAT: ${{ matrix.platform }}
       OPENCV_VERSION: ${{ matrix.opencv_version }}
@@ -44,10 +44,7 @@ jobs:
         pip wheel -w wheelhouse .
         auditwheel repair wheelhouse/opencv*.whl
     -
-      name: list directory
-      run: ls -R
-    -
       name: store artifacts
-      uses: actions/download-artifact@v2
+      uses: actions/upload-artifact@v2
       with:
         path: wheelhouse/opencv*.whl
