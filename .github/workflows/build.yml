@@ -8,7 +8,7 @@ jobs:
     container: quay.io/skvark/manylinux2014_${{ matrix.platform }}
     strategy:
       matrix:
-        opencv_version: ["4.2.0"]
+        opencv_version: [4.2.0]
         platform: ["x86_64"]
         python_version: ["3.9"]
         enable_contrib: [0, 1]
