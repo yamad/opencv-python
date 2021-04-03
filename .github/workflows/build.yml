@@ -4,9 +4,11 @@ on: [push]
 
 jobs:
   build:
+    runs-on: ubuntu-latest
     container: quay.io/skvark/manylinux2014_${{ matrix.platform }}
     strategy:
       matrix:
+        opencv_version: ["4.2.0"]
         platform: ["x86_64", "aarch64", "i686"]
         python_version: ["3.9"]
         enable_contrib: [0, 1]
@@ -14,12 +16,14 @@ jobs:
     env:
       GIT_SUBMODULE_STRATEGY: recursive
       PLAT: ${{ matrix.platform }}
+      OPENCV_VERSION: ${{ matrix.opencv_version }}
       MB_PYTHON_VERSION: ${{ matrix.python_version }}
       PYTHON_VERSION: ${{ matrix.python_version }}
       ENABLE_CONTRIB: ${{ matrix.enable_contrib }}
       ENABLE_HEADLESS: ${{ matrix.enable_headless }}
     steps:
-    - name: build
+    -
+      name: build
       run: |
         source multibuild/common_utils.sh
         source multibuild/manylinux_utils.sh
@@ -29,14 +33,12 @@ jobs:
         export PATH="$(dirname $PYTHON_EXE):$PATH"
 
         mkdir wheelhouse
-        (cd opencv; git checkout $INPUT_OPENCV_VERSION)
-        (cd opencv_contrib; git checkout $INPUT_OPENCV_VERSION)
+        (cd opencv; git checkout $OPENCV_VERSION)
+        (cd opencv_contrib; git checkout $OPENCV_VERSION)
         pip wheel -v -w wheelhouse .
         auditwheel repair wheelhouse/opencv*.whl
-      with:
-        opencv_version: 4.2.0
-
-    - name: store artifacts
-      uses: actions/download-artifacts@v2
+    -
+      name: store artifacts
+      uses: actions/download-artifact@v2
       with:
         path: wheelhouse/opencv*.whl
