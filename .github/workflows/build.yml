@@ -8,11 +8,11 @@ jobs:
     container: quay.io/skvark/manylinux2014_${{ matrix.platform }}
     strategy:
       matrix:
-        opencv_version: [4.2.0, 4.3.0]
+        opencv_version: [4.2.0]
         platform: [x86_64]
-        python_version: [3.8, 3.9]
-        enable_contrib: [0, 1]
-        enable_headless: [0, 1]
+        python_version: [3.9]
+        enable_contrib: [0]
+        enable_headless: [0]
     env:
       PLAT: ${{ matrix.platform }}
       OPENCV_VERSION: ${{ matrix.opencv_version }}
@@ -30,17 +30,20 @@ jobs:
     -
       name: build
       run: |
+        (cd opencv; git checkout $OPENCV_VERSION)
+        (cd opencv_contrib; git checkout $OPENCV_VERSION)
+
         source multibuild/common_utils.sh
         source multibuild/manylinux_utils.sh
         source multibuild/configure_build.sh
         source multibuild/library_builders.sh
+
         export PYTHON_EXE=$(cpython_path $PYTHON_VERSION)/bin/python
         export PATH="$(dirname $PYTHON_EXE):$PATH"
 
-        mkdir wheelhouse
         python -m pip install --upgrade pip
-        (cd opencv; git checkout $OPENCV_VERSION)
-        (cd opencv_contrib; git checkout $OPENCV_VERSION)
+
+        mkdir wheelhouse
         pip wheel -w wheelhouse .
         auditwheel repair wheelhouse/opencv*.whl
     -
