@@ -42,7 +42,7 @@ jobs:
         export PATH="$(dirname $PYTHON_EXE):$PATH"
 
         python -m pip install --upgrade pip
-
+        python find_version.py $ENABLE_CONTRIB $ENABLE_HEADLESS 1
         mkdir wheelhouse
         pip wheel -w wheelhouse .
         auditwheel repair wheelhouse/opencv*.whl
