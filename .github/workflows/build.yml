@@ -10,8 +10,8 @@ jobs:
       matrix:
         platform: [x86_64]
         python_version: [3.9]
-        enable_contrib: [0]
-        enable_headless: [0]
+        enable_contrib: [0, 1]
+        enable_headless: [0, 1]
     env:
       PLAT: ${{ matrix.platform }}
       MB_PYTHON_VERSION: ${{ matrix.python_version }}
