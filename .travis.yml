@@ -789,49 +789,14 @@ after_success: |
       if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
         if [[ $SDIST == 1 ]]; then
           pip install twine
-          twine upload -u ${PYPI_USER} -p ${PASS} --skip-existing ${TRAVIS_BUILD_DIR}/dist/opencv*
+          twine upload --repository-url ${NEXUS_REPO_ROOT}/pypi-staging/simple -u ${NEXUS_USERNAME} -p ${NEXUS_PASSWORD} --skip-existing ${TRAVIS_BUILD_DIR}/dist/opencv*
         else
           pip install --user twine
           pip install --user --upgrade six
-          twine upload -u ${PYPI_USER} -p ${PASS} --skip-existing ${TRAVIS_BUILD_DIR}/wheelhouse/opencv*
+          twine upload --repository-url ${NEXUS_REPO_ROOT}/pypi-staging/simple -u ${NEXUS_USERNAME} -p ${NEXUS_PASSWORD} --skip-existing ${TRAVIS_BUILD_DIR}/wheelhouse/opencv*
         fi
 
-      fi
-
-      if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-        # macpython 3.5 doesn't support recent TLS protocols which causes twine
-        # upload to fail, so we use the system Python to run twine
-        /usr/bin/python -m ensurepip --user
-        /usr/bin/python -m pip install --user -U pip
-        /usr/bin/python -m pip install --user -U -I twine
-
-        if [[ $SDIST == 1 ]]; then
-          /usr/bin/python -m twine upload -u ${PYPI_USER} -p ${PASS} --skip-existing ${TRAVIS_BUILD_DIR}/dist/opencv*
-        else
-          /usr/bin/python -m twine upload -u ${PYPI_USER} -p ${PASS} --skip-existing ${TRAVIS_BUILD_DIR}/wheelhouse/opencv*
-        fi
-
-      fi
-
-    fi
-
-    # Save to Azure storage always
-
-    if [[ $TRAVIS_CPU_ARCH != "arm64" ]]; then
-      if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-        curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
-      else
-        brew install azure-cli
-      fi
-
-      az storage container create -n ${TRAVIS_COMMIT} --public-access blob
-
-      if [[ $SDIST == 1 ]]; then
-        az storage blob upload-batch -d ${TRAVIS_COMMIT} -s ${TRAVIS_BUILD_DIR}/dist --pattern *.gz
-      else
-        az storage blob upload-batch -d ${TRAVIS_COMMIT} -s ${TRAVIS_BUILD_DIR}/wheelhouse --pattern opencv*.whl
       fi
     fi
 
     set +x
-
